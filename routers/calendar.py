@@ -3,7 +3,6 @@ import logging
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import HTMLResponse
-from google_auth_oauthlib.flow import Flow
 from pydantic import BaseModel
 from services.calendar_service import encrypt, create_event, update_event, delete_event, list_today_events
 from services.supabase_service import supabase
@@ -14,7 +13,8 @@ logger = logging.getLogger(__name__)
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 
-def _get_flow(state: str | None = None) -> Flow:
+def _get_flow(state: str | None = None):
+    from google_auth_oauthlib.flow import Flow
     flow = Flow.from_client_config(
         {
             'web': {

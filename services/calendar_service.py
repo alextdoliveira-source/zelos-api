@@ -11,20 +11,30 @@ logger = logging.getLogger(__name__)
 
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
-_fernet_key = os.getenv('ENCRYPTION_KEY', '')
-fernet = Fernet(_fernet_key.encode()) if _fernet_key else None
+_fernet: Fernet | None = None
+
+
+def _get_fernet() -> Fernet | None:
+    global _fernet
+    if _fernet is None:
+        key = os.getenv('ENCRYPTION_KEY', '')
+        if key:
+            _fernet = Fernet(key.encode())
+    return _fernet
 
 
 def encrypt(value: str) -> str:
-    if not fernet:
+    f = _get_fernet()
+    if not f:
         return value
-    return fernet.encrypt(value.encode()).decode()
+    return f.encrypt(value.encode()).decode()
 
 
 def decrypt(value: str) -> str:
-    if not fernet:
+    f = _get_fernet()
+    if not f:
         return value
-    return fernet.decrypt(value.encode()).decode()
+    return f.decrypt(value.encode()).decode()
 
 
 async def get_credentials(user_id: str) -> Credentials | None:
