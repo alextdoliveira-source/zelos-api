@@ -3,8 +3,15 @@ from anthropic import Anthropic
 from services.supabase_service import supabase
 import logging
 
-client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+_client: Anthropic | None = None
 logger = logging.getLogger(__name__)
+
+
+def _get_client() -> Anthropic:
+    global _client
+    if _client is None:
+        _client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+    return _client
 
 
 async def detect_intent(message: str, user_id: str) -> dict | None:
@@ -24,7 +31,7 @@ async def detect_intent(message: str, user_id: str) -> dict | None:
         if i.get("trigger_description")
     ])
 
-    response = client.messages.create(
+    response = _get_client().messages.create(
         model="claude-haiku-4-5-20251001",
         max_tokens=50,
         messages=[{
@@ -158,7 +165,7 @@ async def execute_intent(
 
     messages = conversation_history[-10:] + [{"role": "user", "content": message}]
 
-    response = client.messages.create(
+    response = _get_client().messages.create(
         model="claude-haiku-4-5-20251001",
         max_tokens=400,
         system=system_prompt,
