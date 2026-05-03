@@ -8,7 +8,7 @@ load_dotenv()
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from routers import whatsapp, agent, consultation, calendar
+from routers import whatsapp, agent, consultation, calendar, admin
 from services.supabase_service import supabase
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s — %(message)s")
@@ -50,6 +50,7 @@ app.include_router(whatsapp.router, tags=["WhatsApp"])
 app.include_router(agent.router, tags=["Agent"])
 app.include_router(consultation.router, tags=["Consultation"])
 app.include_router(calendar.router, prefix="/calendar", tags=["Calendar"])
+app.include_router(admin.router, tags=["Admin"])
 
 
 @app.get("/health")
